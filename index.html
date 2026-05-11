@@ -2798,7 +2798,7 @@
         </div>
 
         <div class="content-grid" id="contentGrid">
-          <button class="content-card" data-tags="ted story business">
+          <button class="content-card" data-tags="ted story business" data-youtube="eIho2S0ZahI" data-title="How to speak so people want to listen" data-author="Julian Treasure">
             <div class="content-thumb gradient-1">
               <div class="content-thumb-pattern"></div>
               <div class="content-thumb-icon">
@@ -2817,7 +2817,7 @@
             </div>
           </button>
 
-          <button class="content-card" data-tags="podcast business interview story">
+          <button class="content-card" data-tags="podcast business interview story" data-youtube="o0L_GnIPpcg" data-title="How I Built This Yvon Chouinard" data-author="NPR">
             <div class="content-thumb gradient-2">
               <div class="content-thumb-pattern"></div>
               <div class="content-thumb-icon">
@@ -2836,7 +2836,7 @@
             </div>
           </button>
 
-          <button class="content-card" data-tags="customer workplace">
+          <button class="content-card" data-tags="customer workplace" data-youtube="udSC5pAOyBI" data-title="Apple customer service" data-author="training">
             <div class="content-thumb gradient-3">
               <div class="content-thumb-pattern"></div>
               <div class="content-thumb-icon">
@@ -2855,7 +2855,7 @@
             </div>
           </button>
 
-          <button class="content-card" data-tags="interview podcast casual">
+          <button class="content-card" data-tags="interview podcast casual" data-youtube="3qHkcs3kG44" data-title="Naval Ravikant on wealth and happiness" data-author="Tim Ferriss">
             <div class="content-thumb gradient-4">
               <div class="content-thumb-pattern"></div>
               <div class="content-thumb-icon">
@@ -2874,7 +2874,7 @@
             </div>
           </button>
 
-          <button class="content-card" data-tags="workplace business">
+          <button class="content-card" data-tags="workplace business" data-youtube="LcQUHaIysIE" data-title="Daily Standup Best Practices" data-author="tech teams">
             <div class="content-thumb gradient-5">
               <div class="content-thumb-pattern"></div>
               <div class="content-thumb-icon">
@@ -2893,7 +2893,7 @@
             </div>
           </button>
 
-          <button class="content-card" data-tags="ted story">
+          <button class="content-card" data-tags="ted story" data-youtube="xMj_P_6H69g" data-title="The art of asking" data-author="Amanda Palmer TED">
             <div class="content-thumb gradient-6">
               <div class="content-thumb-pattern"></div>
               <div class="content-thumb-icon">
@@ -4391,6 +4391,57 @@
     $('#youtubeUrl').value = 'https://youtube.com/watch?v=' + savedVid;
   }
   // Note: we don't auto-load the video to avoid surprising autoplay/quota use.
+
+  // ---------- CONTENT FEED: cards open YouTube in Shadow ----------
+  $$('.content-card[data-youtube]').forEach(card => {
+    card.addEventListener('click', () => {
+      const ytId = card.dataset.youtube;
+      const title = card.dataset.title || 'Curated video';
+      const author = card.dataset.author || '';
+      if (!ytId) return;
+      switchView('shadow');
+      setTimeout(() => {
+        const input = $('#youtubeUrl');
+        if (input) input.value = 'https://youtube.com/watch?v=' + ytId;
+        loadVideo('https://youtube.com/watch?v=' + ytId);
+        const titleEl = $('#playerTitle');
+        const authorEl = $('#playerAuthor');
+        if (titleEl) titleEl.textContent = title;
+        if (authorEl) authorEl.textContent = author + ' · paste the transcript below';
+      }, 200);
+    });
+  });
+
+  // ---------- FALLBACK: any unwired button gets a friendly toast ----------
+  // Library exercise buttons (Start, Open, Play, Try, Drill, Read)
+  $$('.exercise-row .btn-ghost').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const title = btn.closest('.exercise-row')?.querySelector('.ex-title')?.textContent || 'exercise';
+      toast('"' + title.trim() + '" — this drill needs backend integration to run', 'warn', 3500);
+    });
+  });
+
+  // Pattern card "X drills queued" buttons
+  $$('.pattern-card .btn-ghost').forEach(btn => {
+    btn.addEventListener('click', () => {
+      toast('Personalized drills will run in production', 'warn', 3000);
+    });
+  });
+
+  // "Run the full prescription" button in errors view
+  $$('#view-errors .btn-primary').forEach(btn => {
+    btn.addEventListener('click', () => {
+      switchView('speak');
+      toast('Starting your prescription with the Speak module', 'success');
+    });
+  });
+
+  // Mission card "Begin session" button (no data-jump)
+  const missionBtn = $('.mission-card .btn-primary');
+  if (missionBtn && !missionBtn.dataset.jump) {
+    missionBtn.addEventListener('click', () => switchView('speak'));
+  }
 
   // ---------- ONBOARDING HINT ----------
   const seenOnboard = storage.get('seenOnboard', false);
